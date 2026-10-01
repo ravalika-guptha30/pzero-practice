@@ -7,7 +7,7 @@
 
 **Key takeaways**
 - Four requirements come straight from the ticket's Acceptance Criteria: **detect unclear input** (AC-1), **ask one clarifying question or offer a default for confirmation** (AC-2, AC-3), **proceed correctly without backtracking** (AC-3a), and **keep clarification loops minimal, preferably one** (AC-4). Everything else is an assumption, marked **[A]**.
-- "Offers a default assumption with confirmation" is read here as: the AI proposes the default and waits for the user to confirm before acting on it. See open question 2.
+- "Offers a default assumption with confirmation" means the AI proposes the default and **waits for the user to confirm** before acting on it. Confirmed by Jampana Murthy Raju.
 - The biggest open decision is the **rule for choosing** between asking and offering a default. See open question 1.
 
 ---
@@ -19,7 +19,7 @@
 |---|---|
 | AC-1 | The AI identifies when the input lacks clarity, for example a missing key parameter or an ambiguous phrase, before giving a full answer. |
 | AC-2 | When clarification is needed, the AI asks **one** well-phrased clarifying question that names the missing or ambiguous point. |
-| AC-3 | Instead of a question, the AI may offer a default assumption and ask the user to confirm it before proceeding. |
+| AC-3 | Instead of a question, the AI may offer a default assumption and ask the user to confirm it. The AI does not act on the default until the user confirms. |
 | AC-3a | Once the user responds, or confirms the assumption, the AI proceeds correctly without further backtracking: it does not reopen points already settled. |
 | AC-4 | The number of follow-up clarification loops is minimal, preferably one per request. |
 
@@ -92,16 +92,15 @@
 
 ## 4. Open questions for the product owner
 1. What rule decides between **asking** and **assuming**? Is there a list of actions that always need confirmation?
-2. Does "offers a default assumption with confirmation" mean the AI **waits** for confirmation (as drafted), or may it proceed and let the user correct it afterwards? Are there low-risk cases where proceeding immediately is fine?
-3. Should clarifications offer clickable options in the UI, or plain text only?
-4. How should assumptions be shown: inline text, a separate note, or a UI element?
-5. What should happen when the user ignores a clarification and asks something else?
-6. What are the targets for clarification rate and turns-to-answer (AC-16), and how will they be measured?
-7. Does this apply to every channel and language LUMOS supports?
-8. The ticket says loops should be "preferably one". When is a second loop acceptable (AC-14)?
+2. Should clarifications offer clickable options in the UI, or plain text only?
+3. How should assumptions be shown: inline text, a separate note, or a UI element?
+4. What should happen when the user ignores a clarification and asks something else?
+5. What are the targets for clarification rate and turns-to-answer (AC-16), and how will they be measured?
+6. Does this apply to every channel and language LUMOS supports?
+7. The ticket says loops should be "preferably one". When is a second loop acceptable (AC-14)?
 
 ## 5. Grounding notes
 - **Verified (read-only from Jira):** summary, type (Story), status (To Do), priority (Medium), reporter, and description. No comments or labels.
-- **Acceptance Criteria field:** the connector did not return it. The four criteria were supplied by Jampana Murthy Raju and are reflected in AC-1 to AC-4.
+- **Acceptance Criteria field:** the connector did not return it. The four criteria were supplied by Jampana Murthy Raju and are reflected in AC-1 to AC-4. She also confirmed the AC-3 reading: the AI waits for confirmation before acting on a default.
 - **Not verified:** attachments (listing disabled), linked issues, and any LUMOS implementation.
 - Scenarios are implementation-agnostic. They should be traced to code once the LUMOS repository is connected.

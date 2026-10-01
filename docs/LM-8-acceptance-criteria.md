@@ -1,13 +1,14 @@
 # LM-8 — Graceful Handling of Ambiguous Input: Acceptance Criteria & Test Scenarios (Draft)
 
 **Purpose:** Draft acceptance criteria and test cases for LUMOS story LM-8, ready for review.
-**Status:** Draft. Not traced to code (no LUMOS repository connected). Jira did not return the ticket's Acceptance Criteria field, so compare this draft against that field before adopting it.
+**Status:** Draft. Not traced to code (no LUMOS repository connected). Core criteria (AC-1 to AC-4) now match the ticket's Acceptance Criteria field, as supplied by Jampana Murthy Raju.
 
 **Story (from Jira):** *As a* user who gives the AI an ambiguous or incomplete input, *I want* the AI to identify ambiguity, ask a concise clarification, or propose a reasonable assumption, *so that* the interaction does not devolve into multiple rounds of questions and retries.
 
 **Key takeaways**
-- Four requirements come straight from the ticket: **detect ambiguity** (AC-1), **ask a concise clarification** (AC-2), **or state a reasonable assumption** (AC-3), and **avoid multiple rounds of questions** (AC-4). Everything else is an assumption, marked **[A]**.
-- The biggest open decision is the **rule for choosing** between asking and assuming. See open question 1.
+- Four requirements come straight from the ticket's Acceptance Criteria: **detect unclear input** (AC-1), **ask one clarifying question or offer a default for confirmation** (AC-2, AC-3), **proceed correctly without backtracking** (AC-3a), and **keep clarification loops minimal, preferably one** (AC-4). Everything else is an assumption, marked **[A]**.
+- "Offers a default assumption with confirmation" is read here as: the AI proposes the default and waits for the user to confirm before acting on it. See open question 2.
+- The biggest open decision is the **rule for choosing** between asking and offering a default. See open question 1.
 
 ---
 
@@ -16,10 +17,11 @@
 ### Core (from the ticket)
 | ID | Criterion |
 |---|---|
-| AC-1 | When a request has more than one materially different reading, or lacks information needed to answer, the AI recognises this before giving a full answer. |
-| AC-2 | When the AI asks for clarification, it asks one short, specific question that names the missing or ambiguous point. |
-| AC-3 | When a reasonable default exists, the AI may proceed with it, but it states the assumption clearly in the reply so the user can correct it. |
-| AC-4 | One ambiguous request is resolved in at most one clarification round. The AI does not chain several follow-up questions across turns about the same request. |
+| AC-1 | The AI identifies when the input lacks clarity, for example a missing key parameter or an ambiguous phrase, before giving a full answer. |
+| AC-2 | When clarification is needed, the AI asks **one** well-phrased clarifying question that names the missing or ambiguous point. |
+| AC-3 | Instead of a question, the AI may offer a default assumption and ask the user to confirm it before proceeding. |
+| AC-3a | Once the user responds, or confirms the assumption, the AI proceeds correctly without further backtracking: it does not reopen points already settled. |
+| AC-4 | The number of follow-up clarification loops is minimal, preferably one per request. |
 
 ### Choosing the right response [A]
 | ID | Criterion |
@@ -58,8 +60,9 @@
 |---|---|---|
 | TS-1 | AC-1, AC-2 | **Given** a new conversation, **when** the user says "Book a meeting with John", **then** the AI asks one question covering what is missing (which John, when), not a full answer built on guesses. |
 | TS-2 | AC-2 | **Given** the user asks "Convert this to the other format" with no format named, **when** the AI replies, **then** the reply is one short question that names the missing point (target format). |
-| TS-3 | AC-3 | **Given** the user asks "Summarise this article" with no length given, **when** the AI replies, **then** it gives a summary and states the assumed length (for example "I kept it to about 5 bullet points"). |
-| TS-4 | AC-4 | **Given** the user asks an ambiguous question and answers the AI's clarification, **when** the AI replies, **then** it gives the answer, not a second question about the same request. |
+| TS-3 | AC-3 | **Given** the user asks "Generate the sales report" with no period given, **when** the AI replies, **then** it offers a default ("I'll use last month — OK?") and waits for confirmation before generating. |
+| TS-3a | AC-3a | **Given** the AI offered "last month" as the default, **when** the user replies "yes", **then** the AI generates the report for last month and does not ask about the period again. |
+| TS-4 | AC-3a, AC-4 | **Given** the user asks an ambiguous question and answers the AI's clarification, **when** the AI replies, **then** it gives the answer, not a second question about the same request, and it does not revisit the point the user just settled. |
 | TS-5 | AC-5 | **Given** a clear request such as "What is 15% of 200?", **when** the AI replies, **then** it answers directly with no clarifying question. |
 | TS-6 | AC-7 | **Given** the user says "Show me the Paris weather" with Paris, France and Paris, Texas both possible, **when** the AI asks, **then** the question offers both options. |
 | TS-7 | AC-8 | **Given** the user says "Create a report for the team" (report type, period and team all unclear), **when** the AI asks, **then** all open points are in one message. |
@@ -89,15 +92,16 @@
 
 ## 4. Open questions for the product owner
 1. What rule decides between **asking** and **assuming**? Is there a list of actions that always need confirmation?
-2. Is "at most one clarification round" (AC-4) a hard rule or a target?
+2. Does "offers a default assumption with confirmation" mean the AI **waits** for confirmation (as drafted), or may it proceed and let the user correct it afterwards? Are there low-risk cases where proceeding immediately is fine?
 3. Should clarifications offer clickable options in the UI, or plain text only?
 4. How should assumptions be shown: inline text, a separate note, or a UI element?
 5. What should happen when the user ignores a clarification and asks something else?
 6. What are the targets for clarification rate and turns-to-answer (AC-16), and how will they be measured?
 7. Does this apply to every channel and language LUMOS supports?
-8. What does the ticket's own Acceptance Criteria field say? Jira didn't return it, and this draft should be reconciled with it.
+8. The ticket says loops should be "preferably one". When is a second loop acceptable (AC-14)?
 
 ## 5. Grounding notes
 - **Verified (read-only from Jira):** summary, type (Story), status (To Do), priority (Medium), reporter, and description. No comments or labels.
-- **Not verified:** Acceptance Criteria field contents (two custom fields exist but returned no value), attachments (listing disabled), linked issues, and any LUMOS implementation.
+- **Acceptance Criteria field:** the connector did not return it. The four criteria were supplied by Jampana Murthy Raju and are reflected in AC-1 to AC-4.
+- **Not verified:** attachments (listing disabled), linked issues, and any LUMOS implementation.
 - Scenarios are implementation-agnostic. They should be traced to code once the LUMOS repository is connected.
